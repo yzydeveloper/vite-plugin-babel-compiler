@@ -16,6 +16,9 @@
     "type": "git",
     "url": "https://github.com/yzydeveloper/vite-plugin-babel-compiler"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch"
