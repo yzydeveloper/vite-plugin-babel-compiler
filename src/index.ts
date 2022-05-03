@@ -26,6 +26,8 @@ export function transform(code: string, rawOptions: TransformOptions & { name: s
 const VITE_PLUGIN_NAME = 'vite-plugin-babel-compiler'
 const ESBUILD_PLUGIN_NAME = 'esbuild-plugin-babel-compiler'
 
+const transformedRegex = new RegExp(`(${DEFAULT_EXTENSIONS.join('|')})$`)
+
 function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
     const { apply, babel: options } = rawOptions
     return {
@@ -41,7 +43,7 @@ function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
                 setup(build) {
                     build.onLoad(
                         {
-                            filter: new RegExp(`(${DEFAULT_EXTENSIONS.join('|')})$`),
+                            filter: transformedRegex,
                         },
                         ({ path }) => {
                             const raw = readFileSync(path, 'utf-8')
@@ -59,6 +61,9 @@ function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
             })
         },
         transform(code: string, id: string) {
+            const shouldTransform = transformedRegex.test(id)
+            if(!shouldTransform) return
+
             const { code: transformedCode, map } = transform(code, {
                 ...options,
                 name: VITE_PLUGIN_NAME,
