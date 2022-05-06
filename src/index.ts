@@ -8,6 +8,13 @@ export interface PluginBabelCompilerOptions {
     apply: Plugin['apply']
 }
 
+export const queryRE = /\?.*$/s
+export const hashRE = /#.*$/s
+
+export function cleanUrl(url: string): string {
+    return url.replace(hashRE, '').replace(queryRE, '')
+}
+
 export function transform(code: string, rawOptions: TransformOptions & { name: string, filename: string }) {
     const { name: callerName, ...babelOptions } = rawOptions
     const options = loadOptions({
@@ -26,7 +33,7 @@ export function transform(code: string, rawOptions: TransformOptions & { name: s
 const VITE_PLUGIN_NAME = 'vite-plugin-babel-compiler'
 const ESBUILD_PLUGIN_NAME = 'esbuild-plugin-babel-compiler'
 
-const transformedRegex = new RegExp(`(${DEFAULT_EXTENSIONS.join('|')})$`)
+const transformedRegex = new RegExp(`\\.(${DEFAULT_EXTENSIONS.join('|').replace(/\./g, '')})$`)
 
 function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
     const { apply, babel: options } = rawOptions
@@ -45,24 +52,28 @@ function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
                         {
                             filter: transformedRegex,
                         },
-                        ({ path }) => {
-                            const raw = readFileSync(path, 'utf-8')
-                            const { code } = transform(raw, {
+                        ({ path: rawPath }) => {
+                            const path = cleanUrl(rawPath)
+                            const shouldTransform = transformedRegex.test(path)
+                            if (!shouldTransform) return
+                            const code = readFileSync(path, 'utf-8')
+                            const { code: transformedCode } = transform(code, {
                                 ...options,
                                 name: ESBUILD_PLUGIN_NAME,
                                 filename: path
                             }) ?? {}
                             return {
-                                contents: code ?? ''
+                                contents: transformedCode ?? ''
                             }
                         }
                     )
                 }
             })
         },
-        transform(code: string, id: string) {
+        transform(code: string, rawId: string) {
+            const id = cleanUrl(rawId)
             const shouldTransform = transformedRegex.test(id)
-            if(!shouldTransform) return
+            if (!shouldTransform) return
 
             const { code: transformedCode, map } = transform(code, {
                 ...options,
