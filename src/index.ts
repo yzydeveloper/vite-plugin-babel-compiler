@@ -50,7 +50,7 @@ function evaluate(
             } if (item instanceof RegExp) {
                 return item
             }
-            throw new Error('transpileDependencies only accepts an array of string or regular expressions')
+            throw new Error('exclude|include only accepts an array of string or regular expressions')
         }) || [],
         '@vite/client',
         '@vite/env'
@@ -79,8 +79,8 @@ function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
                         ({ path: rawPath }) => {
                             const path = cleanUrl(rawPath)
                             if (!transformedRegex.test(path)) return
-                            if (!evaluate(include, path)) return
-                            if (evaluate(exclude, path)) return
+                            if (!evaluate(include, path) && include.length) return
+                            if (evaluate(exclude, path) && exclude.length) return
 
                             const code = readFileSync(path, 'utf-8')
                             const { code: transformedCode } = transform(code, {
@@ -99,8 +99,8 @@ function PluginDecorator(rawOptions: PluginBabelCompilerOptions): Plugin {
         transform(code: string, rawId: string) {
             const id = cleanUrl(rawId)
             if (!transformedRegex.test(id)) return
-            if (!evaluate(include, id)) return
-            if (evaluate(exclude, id)) return
+            if (!evaluate(include, id) && include.length) return
+            if (evaluate(exclude, id) && exclude.length) return
 
             const { code: transformedCode, map } = transform(code, {
                 ...options,
