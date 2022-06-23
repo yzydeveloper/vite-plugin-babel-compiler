@@ -7,9 +7,9 @@ import { transformSync, loadOptions, DEFAULT_EXTENSIONS } from '@babel/core'
 
 export interface PluginBabelCompilerOptions {
     babel: TransformOptions
-    apply: Plugin['apply']
-    exclude: string[]
-    include: string[]
+    apply?: Plugin['apply']
+    exclude?: string[] | RegExp[]
+    include?: string[] | RegExp[]
 }
 
 export const queryRE = /\?.*$/s
