@@ -26,10 +26,12 @@ import babel from 'vite-plugin-babel-compiler'
     plugins: [
         babel({
             babel: {
-                 plugins: [
+                plugins: [
                         ['@babel/plugin-proposal-decorators', { legacy: true }],
                         ['@babel/plugin-proposal-class-properties', { loose: true }],
-                    ],
+                ],
+                exclude: ['dep',/path/]
+                include: ['dep',/path/]
             }
         })
     ]
