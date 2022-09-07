@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-babel-compiler",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "license": "MIT",
   "author": "yzydeveloper",
   "main": "dist/index.js",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.17.9",
-    "vite": "^2.5.10"
+    "vite": "^3.1.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.19",
@@ -37,6 +37,6 @@
   },
   "peerDependencies": {
     "@babel/core": "^7.17.9",
-    "vite": "^2.5.10"
+    "vite": "^3.1.0"
   }
 }
